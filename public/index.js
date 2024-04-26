@@ -1,13 +1,20 @@
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
 
-canvas.width = 1024;
-canvas.height = 576;
 
-
-
+canvas.width = 960;
+canvas.height = 640;
 
 ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+const img = new Image();
+img.src = '/assets/dungeon.png';
+
+img.onload = () => {
+    ctx.drawImage(img, 0, 0);
+}
+
+
 
 let AllPlayers = {};
 
@@ -19,6 +26,7 @@ socket.on('players', (players) => {
             AllPlayers[player.id] = new Player(player);
         } else {
             AllPlayers[player.id].position = player.position;
+            AllPlayers[player.id].update(player);
         }
     }
 }
@@ -30,13 +38,18 @@ socket.on('player disconnected', (playerId) => {
 }
 );
 
+let gameFrame = 0;
+
 function animate() {
-    ctx.fillStyle = 'white';
+    
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0);
+
     for (const player in AllPlayers) {
-        AllPlayers[player].draw(ctx);
+        AllPlayers[player].animate(ctx);
     }
     requestAnimationFrame(animate);
+    gameFrame++;
 }
 
 animate();
@@ -45,7 +58,6 @@ animate();
 const clickHandler = (event) => {
     const x = event.offsetX;
     const y = event.offsetY;
-    console.log(x, y);
     socket.emit('click', { x, y });
 }
 
