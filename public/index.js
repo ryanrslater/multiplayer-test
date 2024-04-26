@@ -17,6 +17,7 @@ img.onload = () => {
 
 
 let AllPlayers = {};
+let AllEnemies = {};
 
 const socket = io('http://localhost:3000');
 
@@ -32,6 +33,23 @@ socket.on('players', (players) => {
 }
 );
 
+socket.on('enemies', (enemies) => {
+
+    for (const enemy of enemies) {
+        if (!AllEnemies[enemy.id]) {
+            
+    
+            AllEnemies[enemy.id] = new Player(enemy);
+        } else {
+            AllEnemies[enemy.id].position = enemy.position;
+            AllEnemies[enemy.id].update(enemy);
+        }
+    }
+}
+);
+
+
+
 socket.on('player disconnected', (playerId) => {
     console.log('player disconnected', playerId);
     delete AllPlayers[playerId];
@@ -41,12 +59,18 @@ socket.on('player disconnected', (playerId) => {
 let gameFrame = 0;
 
 function animate() {
-    
+ 
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(img, 0, 0);
 
     for (const player in AllPlayers) {
         AllPlayers[player].animate(ctx);
+    }
+
+   
+
+    for (const enemy in AllEnemies) {
+        AllEnemies[enemy].animate(ctx);
     }
     requestAnimationFrame(animate);
     gameFrame++;
