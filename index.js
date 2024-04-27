@@ -11,6 +11,12 @@ const playerVelocity = 2;
 const attackRange = 30;
 const followRange = 100;
 
+
+let players = [];
+let enemies = []
+let walkingPlayers = [];
+
+
 app.use(express.static('public'));
 
 app.get('/', (req, res) => {
@@ -38,6 +44,16 @@ function animateEnemy(enemy) {
         // Attack the player
         enemy.state = 'attack';
         enemy.target = playerInRange.id;
+
+        // Reduce health of player
+        const player = players.find(player => player.id === playerInRange.id);
+        player.health -= 1;
+        if (player.health <= 0) {
+            player.health = 0;
+            player.state = 'death';
+        }
+
+
     } else {
         const playerInFollowRange = players.find(player => {
             const dx = player.position.x - enemy.position.x;
@@ -57,10 +73,12 @@ function animateEnemy(enemy) {
             }
 
             // Follow the player
-            enemy.position.x += dx / 100;
-            enemy.position.y += dy / 100;
+            enemy.position.x += (dx / 100) * playerVelocity;
+            enemy.position.y += (dy / 100) * playerVelocity;
             enemy.state = 'walk';
-            enemy.target = playerInFollowRange.id;
+            enemy.target = playerInFollowRange.id
+
+
         } else {
             // No player in range, idle state
             enemy.state = 'idle';
@@ -82,7 +100,8 @@ function newPlayer(id) {
         },
         state: 'idle',
         direction: 'down',
-        character: 'warrior'
+        character: 'warrior',
+        health: 100
     };
 }
 
@@ -103,10 +122,6 @@ function generateEnemies() {
         });
     }
 }
-
-let players = [];
-let enemies = []
-let walkingPlayers = [];
 
 
 io.on('connection', (socket) => {
@@ -165,7 +180,9 @@ function update() {
         const player = players.find(player => player.id === walkingPlayer.id);
         if (!player) {
             continue;
+
         }
+     
         const dx = walkingPlayer.x - player.position.x;
         const dy = walkingPlayer.y - player.position.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
