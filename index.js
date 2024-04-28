@@ -14,9 +14,9 @@ let characters = {};
 app.use(express.static("public"));
 
 app.get("/", (req, res) => {
-  res.sendFile(__dirname + "/index.html");
-});
-
+    res.sendFile(__dirname + "/public/index.html"); // Assuming index.html is in the 'public' directory
+  });
+  
 function characterEmitter(io, character) {
   const data = character.get();
   io.emit("character", data);
