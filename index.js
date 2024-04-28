@@ -4,7 +4,7 @@ const { Server } = require("socket.io");
 const { Player, Enemy } = require("./characters.js");
 
 const app = express();
-const port = 3000;
+const port = 3001;
 const server = http.createServer(app);
 const io = new Server(server);
 
