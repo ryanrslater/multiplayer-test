@@ -15,7 +15,7 @@ img.onload = () => {
 
 let AllCharacters = {};
 
-const socket = io("http://localhost:3000");
+const socket = io("http://localhost:3001");
 
 socket.on("character", (character) => {
   console.log(character);
