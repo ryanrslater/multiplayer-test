@@ -1,8 +1,7 @@
-
-import express from "express";
-import http from "http";
-import { Server } from "socket.io";
-import { Player, Enemy } from "./characters.js";
+const express = require("express");
+const http = require("http");
+const { Server } = require("socket.io");
+const { Player, Enemy } = require("./characters.js");
 
 const app = express();
 const port = 3000;

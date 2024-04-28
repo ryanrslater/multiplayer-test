@@ -1,4 +1,4 @@
-export class Player {
+class Player {
   constructor({ id }) {
     const randomX = Math.floor(Math.random() * 30) + 1;
     const randomY = Math.floor(Math.random() * 20) + 1;
@@ -52,7 +52,7 @@ export class Player {
     };
   }
 }
-export class Enemy {
+class Enemy {
     constructor({ id }) {
       const randomX = Math.floor(Math.random() * 30) + 1;
       const randomY = Math.floor(Math.random() * 20) + 1;
@@ -188,3 +188,4 @@ export class Enemy {
     }
   }
   
+    module.exports = { Player, Enemy };
