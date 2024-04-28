@@ -1,6 +1,5 @@
-const canvas = document.querySelector('canvas');
-const ctx = canvas.getContext('2d');
-
+const canvas = document.querySelector("canvas");
+const ctx = canvas.getContext("2d");
 
 canvas.width = 960;
 canvas.height = 640;
@@ -8,81 +7,72 @@ canvas.height = 640;
 ctx.fillRect(0, 0, canvas.width, canvas.height);
 
 const img = new Image();
-img.src = '/assets/dungeon.png';
+img.src = "/assets/dungeon.png";
 
 img.onload = () => {
-    ctx.drawImage(img, 0, 0);
-}
+  ctx.drawImage(img, 0, 0);
+};
 
+let AllCharacters = {};
 
+const socket = io("http://localhost:3000");
 
-let AllPlayers = {};
-let AllEnemies = {};
+socket.on("character", (character) => {
+  console.log(character);
+  if (AllCharacters[character.id]) {
+    AllCharacters[character.id].update(character);
+  } else {
+    AllCharacters[character.id] = new Sprite(character);
+  }
+  console.log(AllCharacters);
+});
 
-const socket = io('http://localhost:3000');
-
-socket.on('players', (players) => {
-    for (const player of players) {
-        if (!AllPlayers[player.id]) {
-            AllPlayers[player.id] = new Player(player);
-        } else {
-            AllPlayers[player.id].position = player.position;
-            AllPlayers[player.id].update(player);
-        }
-    }
-}
-);
-
-socket.on('enemies', (enemies) => {
-
-    for (const enemy of enemies) {
-        if (!AllEnemies[enemy.id]) {
-            
-    
-            AllEnemies[enemy.id] = new Player(enemy);
-        } else {
-            AllEnemies[enemy.id].position = enemy.position;
-            AllEnemies[enemy.id].update(enemy);
-        }
-    }
-}
-);
-
-
-
-socket.on('player disconnected', (playerId) => {
-    console.log('player disconnected', playerId);
-    delete AllPlayers[playerId];
-}
-);
+socket.on("player disconnected", (playerId) => {
+  delete AllCharacters[playerId];
+});
 
 let gameFrame = 0;
 
 function animate() {
- 
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(img, 0, 0);
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(img, 0, 0);
 
-    for (const player in AllPlayers) {
-        AllPlayers[player].animate(ctx);
-    }
+  for (const player of Object.values(AllCharacters)) {
+    player.animate(ctx);
+  }
 
-   
-
-    for (const enemy in AllEnemies) {
-        AllEnemies[enemy].animate(ctx);
-    }
-    requestAnimationFrame(animate);
-    gameFrame++;
+  requestAnimationFrame(animate);
+  gameFrame++;
 }
 
 animate();
 
+const regularUpdate = () => {
+  for (const player of Object.values(AllCharacters)) {
+    player.updateServer(socket);
+  }
+};
+
+socket.on("update", (data) => {
+  AllCharacters[data.id].endPosition = data.new_position;
+  AllCharacters[data.id].position = data.current_position;
+});
+
+setInterval(regularUpdate, 2000);
 
 const clickHandler = (event) => {
-    const x = event.offsetX;
-    const y = event.offsetY;
-    socket.emit('click', { x, y });
-}
+  const x = event.offsetX;
+  const y = event.offsetY;
+  const id = socket.id;
+  position = AllCharacters[id].getClickPosition();
+  socket.emit("click", {
+    id,
+    new_position: {
+      x,
+      y,
+    },
+    current_position: position,
+  });
+};
 
-canvas.addEventListener('click', clickHandler);
+canvas.addEventListener("click", clickHandler);
