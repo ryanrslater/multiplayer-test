@@ -19,6 +19,11 @@ app.get("/", (req, res) => {
     res.sendFile(__dirname + "/public/index.html"); // Assuming index.html is in the 'public' directory
   });
 
+app.get("/assets/*", (req, res) => {
+    res.sendFile(__dirname + req.url);
+    }
+)
+
 function characterEmitter(io, character) {
   const data = character.get();
   io.emit("character", data);
