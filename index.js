@@ -10,13 +10,15 @@ const io = new Server(server);
 
 let players = [];
 let characters = {};
+const path = require("path");
 
-app.use(express.static("public"));
+// Serve static files from the 'public' directory
+app.use(express.static(path.join(__dirname, "public")));
 
 app.get("/", (req, res) => {
     res.sendFile(__dirname + "/public/index.html"); // Assuming index.html is in the 'public' directory
   });
-  
+
 function characterEmitter(io, character) {
   const data = character.get();
   io.emit("character", data);
