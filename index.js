@@ -14,15 +14,14 @@ const path = require("path");
 
 // Serve static files from the 'public' directory
 app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, "public/assets")));
+
 
 app.get("/", (req, res) => {
+    console.log(path.join(__dirname, "public"))
     res.sendFile(__dirname + "/public/index.html"); // Assuming index.html is in the 'public' directory
   });
 
-app.get("/assets/*", (req, res) => {
-    res.sendFile(__dirname + req.url);
-    }
-)
 
 function characterEmitter(io, character) {
   const data = character.get();
